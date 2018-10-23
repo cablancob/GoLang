@@ -19,12 +19,12 @@ type app_version struct {
 }
 
 //variables produccion
-//var url_rider string = "http://driver.taksio.net/taksio/private/rider/version/"
-//var url_driver string = "http://driver.taksio.net/taksio/private/driver/version/"
+var url_rider string = "http://driver.taksio.net/taksio/private/rider/version/"
+var url_driver string = "http://driver.taksio.net/taksio/private/driver/version/"
 
 //variables desarrollo
-var url_rider string = "http://localhost:8008/rider/version/"
-var url_driver string = "http://localhost:8009/driver/version/"
+//var url_rider string = "http://localhost:8008/rider/version/"
+//var url_driver string = "http://localhost:8009/driver/version/"
 
 func main() {
 
