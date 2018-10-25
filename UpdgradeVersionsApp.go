@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -16,6 +15,33 @@ import (
 
 type app_version struct {
 	Version string `json:"version"`
+}
+
+type Block struct {
+	Try     func()
+	Catch   func(Exception)
+	Finally func()
+}
+
+type Exception interface{}
+
+func Throw(up Exception) {
+	panic(up)
+}
+
+func (tcf Block) Do() {
+	if tcf.Finally != nil {
+
+		defer tcf.Finally()
+	}
+	if tcf.Catch != nil {
+		defer func() {
+			if r := recover(); r != nil {
+				tcf.Catch(r)
+			}
+		}()
+	}
+	tcf.Try()
 }
 
 //variables produccion
@@ -35,27 +61,33 @@ func main() {
 
 	for {
 
-		versionPlayStore_rider := ScrapingHtml(rider)
-		versionPlayStore_driver := ScrapingHtml(driver)
+		Block{
+			Try: func() {
+				versionPlayStore_rider := ScrapingHtml(rider)
+				versionPlayStore_driver := ScrapingHtml(driver)
 
-		versionBd_rider := GetActualVersion(app_rider)
-		versionBd_driver := GetActualVersion(app_driver)
+				versionBd_rider := GetActualVersion(app_rider)
+				versionBd_driver := GetActualVersion(app_driver)
 
-		println("Play Rider: ", versionPlayStore_rider)
-		println("Play Driver: ", versionPlayStore_driver)
+				println("Play Rider: ", versionPlayStore_rider)
+				println("Play Driver: ", versionPlayStore_driver)
 
-		println("BD Rider: ", versionBd_rider)
-		println("BD Driver: ", versionBd_driver)
+				println("BD Rider: ", versionBd_rider)
+				println("BD Driver: ", versionBd_driver)
 
-		if versionPlayStore_rider != versionBd_rider {
-			UpdateVersion(app_rider, versionPlayStore_rider)
-		}
+				if versionPlayStore_rider != versionBd_rider && strings.TrimSpace(versionPlayStore_rider) != "" {
+					UpdateVersion(app_rider, versionPlayStore_rider)
+				}
 
-		if versionPlayStore_driver != versionBd_driver {
-			UpdateVersion(app_driver, versionPlayStore_driver)
-		}
+				if versionPlayStore_driver != versionBd_driver && strings.TrimSpace(versionPlayStore_driver) != "" {
+					UpdateVersion(app_driver, versionPlayStore_driver)
+				}
 
-		fmt.Printf("Current Unix Time: %v\n", time.Now().Unix())
+				fmt.Printf("Current Unix Time: %v\n", time.Now().Unix())
+			}, Catch: func(e Exception) {
+				fmt.Printf("Error %v\n", e)
+			},
+		}.Do()
 		time.Sleep(300 * time.Second)
 	}
 
@@ -72,17 +104,17 @@ func ScrapingHtml(s string) string {
 
 	res, err := http.Get(s)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+		println("status code error: %d %s", res.StatusCode, res.Status)
 	}
 
 	// Load the HTML document
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	// Find the review items
