@@ -156,7 +156,7 @@ func GetActualVersion(app string) string {
 		if err2 != nil {
 			panic(err)
 		}
-
+		var result string
 		ver := new(app_version)
 		err3 := json.Unmarshal([]byte(strings.TrimSpace(string(body))), &ver)
 		if err3 != nil {
