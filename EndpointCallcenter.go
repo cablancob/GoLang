@@ -38,11 +38,19 @@ func (tcf Block) Do() {
 	tcf.Try()
 }
 
-const (
+/*const (
 	host     = "localhost"
 	port     = 5432
 	user     = "postgres"
 	password = "123456"
+	dbname   = "taksio"
+)*/
+
+const (
+	host     = "experimental.taksio.net"
+	port     = 5432
+	user     = "postgres"
+	password = "3xp3r1m3nt4L-t4ks10-2018"
 	dbname   = "taksio"
 )
 
@@ -112,7 +120,7 @@ func main() {
 	http.HandleFunc("/callcenter", request)
 
 	fmt.Printf("Starting server for testing HTTP POST...\n")
-	if err := http.ListenAndServe(":8010", nil); err != nil {
+	if err := http.ListenAndServe(":8111", nil); err != nil {
 		log.Fatal(err)
 	}
 

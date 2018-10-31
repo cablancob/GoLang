@@ -45,12 +45,8 @@ func (tcf Block) Do() {
 }
 
 //variables produccion
-var url_rider string = "http://driver.taksio.net/taksio/private/rider/version/"
-var url_driver string = "http://driver.taksio.net/taksio/private/driver/version/"
-
-//variables desarrollo
-//var url_rider string = "http://localhost:8008/rider/version/"
-//var url_driver string = "http://localhost:8009/driver/version/"
+var url_rider string = "http://driver.taksio.net/taksio/private/rider/version"
+var url_driver string = "http://driver.taksio.net/taksio/private/driver/version"
 
 func main() {
 
@@ -156,7 +152,6 @@ func GetActualVersion(app string) string {
 		if err2 != nil {
 			panic(err)
 		}
-		var result string
 		ver := new(app_version)
 		err3 := json.Unmarshal([]byte(strings.TrimSpace(string(body))), &ver)
 		if err3 != nil {
@@ -172,8 +167,7 @@ func GetActualVersion(app string) string {
 func UpdateVersion(app string, actualversion string) {
 	if app == "RIDER" {
 		var jsonStr = []byte(`{"operation": 1, "name_app_p": "RIDER" , "Version_app_p": "` + actualversion + `"}`)
-		req, err := http.NewRequest("POST", url_driver, bytes.NewBuffer(jsonStr))
-		req.Header.Set("Content-Type", "application/json")
+		req, err := http.NewRequest("POST", url_rider+"?operation=1&name_app_p="+app+"&version_app_p="+actualversion+"", bytes.NewBuffer(jsonStr))
 
 		client := &http.Client{}
 		resp, err := client.Do(req)
@@ -188,7 +182,7 @@ func UpdateVersion(app string, actualversion string) {
 
 	if app == "DRIVER" {
 		var jsonStr = []byte(`{"operation": 1, "name_app_p": "DRIVER" , "Version_app_p": "` + actualversion + `"}`)
-		req, err := http.NewRequest("POST", url_driver, bytes.NewBuffer(jsonStr))
+		req, err := http.NewRequest("POST", url_driver+"?operation=1&name_app_p="+app+"&version_app_p="+actualversion+"", bytes.NewBuffer(jsonStr))
 		req.Header.Set("Content-Type", "application/json")
 
 		client := &http.Client{}
