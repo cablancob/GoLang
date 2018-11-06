@@ -79,6 +79,8 @@ func bd_consult(date_from string, date_to string) string {
 		panic(err)
 	}
 
+	rows.Close()
+
 	return result
 
 }

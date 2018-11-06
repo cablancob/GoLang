@@ -65,6 +65,9 @@ func main() {
 				versionBd_rider := GetActualVersion(app_rider)
 				versionBd_driver := GetActualVersion(app_driver)
 
+				t := time.Now()
+				fmt.Println(t.Format("2006-01-02 15:04:05") + ", Play Rider: " + versionPlayStore_rider + ", Play Driver: " + versionPlayStore_driver + ", BD Rider: " + versionBd_rider + ", BD Driver: " + versionBd_driver)
+
 				if versionPlayStore_rider != versionBd_rider && strings.TrimSpace(versionPlayStore_rider) != "" {
 					UpdateVersion(app_rider, versionPlayStore_rider)
 				}
@@ -72,9 +75,6 @@ func main() {
 				if versionPlayStore_driver != versionBd_driver && strings.TrimSpace(versionPlayStore_driver) != "" {
 					UpdateVersion(app_driver, versionPlayStore_driver)
 				}
-
-				t := time.Now()
-				fmt.Println(t.Format("2006-01-02 15:04:05") + ", Play Rider: " + versionPlayStore_rider + ", Play Driver: " + versionPlayStore_driver + ", BD Rider: " + versionBd_rider + ", BD Driver: " + versionBd_driver)
 			}, Catch: func(e Exception) {
 				fmt.Printf("Error %v\n", e)
 			},
