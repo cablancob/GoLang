@@ -11,11 +11,21 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-const (
+//DESARROLLO
+/*const (
 	host     = "localhost"
 	port     = 5432
 	user     = "postgres"
 	password = "123456"
+	dbname   = "taksio"
+)*/
+
+//PRODUCCION
+const (
+	host     = "experimental.taksio.net"
+	port     = 5432
+	user     = "postgres"
+	password = "3xp3r1m3nt4L-t4ks10-2018"
 	dbname   = "taksio"
 )
 
@@ -75,7 +85,7 @@ func main() {
 			if isDAte(strings.TrimSpace(sheet.Name)) {
 				for _, row := range sheet.Rows {
 					if strings.TrimSpace(row.Cells[1].String()) != "" && isDAte2(strings.TrimSpace(row.Cells[1].String())) {
-						if strings.ToUpper(strings.TrimSpace(row.Cells[6].String())) != "APP" && strings.TrimSpace(row.Cells[6].String()) != "" {
+						if strings.ToUpper(strings.TrimSpace(row.Cells[6].String())) != "APP" && strings.TrimSpace(row.Cells[2].String()) != "" {
 							driver := strings.ToUpper(row.Cells[2].String())
 							driver = strings.Replace(driver, "Á", "A", -1)
 							driver = strings.Replace(driver, "É", "E", -1)
