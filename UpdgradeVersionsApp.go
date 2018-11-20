@@ -119,7 +119,7 @@ func ScrapingHtml(s string) string {
 	return strings.TrimSpace(result)
 }
 
-func GetActualVersion(app string) string {
+func GetNameRiderGetActualVersion(app string) string {
 	result := ""
 
 	if app == "RIDER" {
