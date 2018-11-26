@@ -111,5 +111,23 @@ func main() {
 		db.Close()
 		panic(err5)
 	}
+
+	rows, err10 := db.Query("SELECT driver from callcenter.callcenterdata WHERE LENGTH(driver) < 36 GROUP BY driver")
+	if err10 != nil {
+		panic(err10)
+	}
+
+	result := ""
+
+	for rows.Next() {
+		err11 := rows.Scan(&result)
+		if err11 != nil {
+			panic(err11)
+		}
+		println(result)
+	}
+
+	rows.Close()
+
 	db.Close()
 }
