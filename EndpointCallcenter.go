@@ -81,6 +81,8 @@ func bd_consult(date_from string, date_to string) string {
 
 	rows.Close()
 
+	db.Close()	
+
 	return result
 
 }

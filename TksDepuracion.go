@@ -105,7 +105,7 @@ func main() {
 	entidad := ""
 	tks := ""
 	//rows, err10 := db.Query("SELECT rider,count(*), (select coalesce(to_char(max(date),'YYYY-MM-DD'),'0000') from financial.payment_service_rider where user_uuid = A.rider AND status = 'cleared')  FROM tks_full A WHERE driver = '' AND id_tks not in (SELECT id_tks FROM tks) GROUP BY rider ORDER BY count(*) DESC")
-	rows, err10 := db.Query("select A.rider, B.reference as referencia, B.entity as banco, A.C as "fecha creacion", A.D as "fecha vecimiento", A.F as tks from (SELECT rider, to_date(fecha_creacion,'yyyy-mm-dd') as C, to_date(fecha_expiracion,'yyyy-mm-dd') as D, count(*) as F FROM tks_full WHERE driver = '' and id_tks not in (select id_tks from tks) GROUP BY rider, to_date(fecha_creacion,'yyyy-mm-dd'), to_date(fecha_expiracion,'yyyy-mm-dd') order by to_date(fecha_creacion,'yyyy-mm-dd') desc) as A LEFT JOIN (select user_uuid, date as E, reference, entity  from financial.payment_service_rider WHERE status = 'cleared' group by user_uuid, date, reference, entity) as B on A.rider = B.user_uuid and A.C =B.E order by A.rider, A.C asc")
+	rows, err10 := db.Query("select A.rider, coalesce(B.reference,''), coalesce(B.entity,''), A.C, A.D, A.F from (SELECT rider, to_date(fecha_creacion,'yyyy-mm-dd') as C, to_date(fecha_expiracion,'yyyy-mm-dd') as D, count(*) as F FROM tks_full WHERE driver = '' and id_tks not in (select id_tks from tks) GROUP BY rider, to_date(fecha_creacion,'yyyy-mm-dd'), to_date(fecha_expiracion,'yyyy-mm-dd') order by to_date(fecha_creacion,'yyyy-mm-dd') desc) as A LEFT JOIN (select user_uuid, date as E, reference, entity  from financial.payment_service_rider WHERE status = 'cleared' group by user_uuid, date, reference, entity) as B on A.rider = B.user_uuid and A.C =B.E order by A.rider, A.C asc")
 	if err10 != nil {
 		panic(err10)
 	}
@@ -120,7 +120,7 @@ func main() {
 		}
 		nombre = GetNameRider(rider)
 		t, err := time.Parse("2006-01-02T15:04:05Z", fecha_c)
-		t1, err1 := time.Parse("2006-01-02T15:04:05Z", fecha_v)
+		t1, err := time.Parse("2006-01-02T15:04:05Z", fecha_v)
 		f.WriteString(nombre + "," + referencia + "," + entidad + "," + t.Format("2006-01-02") + "," + t1.Format("2006-01-02") + "," + tks + "\n")
 		println(nombre + "," + referencia + "," + entidad + "," + t.Format("2006-01-02") + "," + t1.Format("2006-01-02") + "," + tks)
 	}
