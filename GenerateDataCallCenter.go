@@ -12,22 +12,22 @@ import (
 )
 
 //DESARROLLO
-/*const (
-	host     = "localhost"
+const (
+	host     = "192.168.1.140"
 	port     = 5432
 	user     = "postgres"
-	password = "123456"
-	dbname   = "taksio"
-)*/
+	password = "postgres"
+	dbname   = "taskio"
+)
 
 //PRODUCCION
-const (
+/*const (
 	host     = "experimental.taksio.net"
 	port     = 5432
 	user     = "postgres"
 	password = "3xp3r1m3nt4L-t4ks10-2018"
 	dbname   = "taksio"
-)
+)*/
 
 func isDAte(s string) bool {
 	bolean := true
@@ -48,14 +48,20 @@ func isDAte2(s string) bool {
 	} else {
 		bolean = true
 	}
+	_, err1 := time.Parse("02/1/2006", s)
+	if err1 != nil {
+		bolean = false
+	} else {
+		bolean = true
+	}
 	return bolean
 }
 
 func main() {
 
-	fecha_actual := time.Now()
+	//fecha_actual := time.Now()
 
-	directory := "/home/taksioweb-01/CallCenter/"
+	directory := "/home/desa/CallCenter/"
 
 	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
@@ -66,6 +72,11 @@ func main() {
 	}
 	defer db.Close()
 
+	/*f, err10 := os.Create("/home/desa/archivos.txt")
+	if err10 != nil {
+		log.Fatal(err10)
+	}*/
+
 	files, err2 := ioutil.ReadDir(directory)
 	if err2 != nil {
 		db.Close()
@@ -73,73 +84,89 @@ func main() {
 	}
 	for _, file := range files {
 		excelFileName := directory + file.Name()
-		var nombre_archivo = file.Name()
-		if !strings.Contains(nombre_archivo, "**") {
-			xlFile, err3 := xlsx.OpenFile(excelFileName)
-			if err3 != nil {
-				db.Close()
-				panic(err3)
-			}
-			for _, sheet := range xlFile.Sheets {
-				if isDAte(strings.TrimSpace(sheet.Name)) {
-					fecha_titulo, _ := time.Parse("02-01-2006", strings.TrimSpace(sheet.Name))
+		//var nombre_archivo = file.Name()
 
-					fmt.Println(fecha_titulo.Format("02-01-2006"))
+		xlFile, err3 := xlsx.OpenFile(excelFileName)
+		if err3 != nil {
+			panic(err3)
+		}
+		for _, sheet := range xlFile.Sheets {
+			if isDAte(strings.TrimSpace(sheet.Name)) {
+				s := strings.Split(sheet.Name, "-")
+				date_ride := strings.TrimSpace(s[2] + "-" + s[1] + "-" + s[0])
+				fmt.Println(date_ride)
+				//f.WriteString(date_ride + "\n")
+				for _, row := range sheet.Rows {
+					//if strings.TrimSpace(row.Cells[1].String()) == "Fecha" {
+					if strings.TrimSpace(row.Cells[1].String()) != "" && isDAte2(strings.TrimSpace(row.Cells[1].String())) && strings.TrimSpace(row.Cells[2].String()) != "" {
+						driver := strings.TrimSpace(row.Cells[2].String())
+						origin := strings.TrimSpace(row.Cells[3].String())
+						destination := strings.TrimSpace(row.Cells[4].String())
+						rider := strings.TrimSpace(row.Cells[5].String())
+						tp_solicitud := strings.TrimSpace(row.Cells[6].String())
+						tp_servicio := strings.TrimSpace(row.Cells[7].String())
+						nro_transaccion := strings.TrimSpace(row.Cells[8].String())
+						mto_tiempo_espera := strings.TrimSpace(strings.Replace(strings.TrimSpace(row.Cells[9].String()), "Bs.", "", -1))
+						if mto_tiempo_espera == "" || mto_tiempo_espera == "-" || mto_tiempo_espera == "#REF!" {
+							mto_tiempo_espera = "0"
+						}
+						cant_tks := strings.TrimSpace(row.Cells[10].String())
+						mto_pago_conductor := strings.TrimSpace(strings.Replace(strings.TrimSpace(row.Cells[13].String()), "Bs.", "", -1))
+						if mto_pago_conductor == "" || mto_pago_conductor == "-" || mto_pago_conductor == "#REF!" {
+							mto_pago_conductor = "0"
+						}
+						de_estatus := strings.TrimSpace(row.Cells[14].String())
+						mto_pasajero := strings.TrimSpace(strings.Replace(strings.Replace(strings.TrimSpace(row.Cells[16].String()), "Bs.", "", -1), "%", "", -1))
+						if mto_pasajero == "" || mto_pasajero == "-" || mto_pasajero == "#REF!" {
+							mto_pasajero = "0"
+						}
 
-					if fecha_titulo.Format("02-01-2006") != fecha_actual.Format("02-01-2006") {
-						_, err = db.Exec("DELETE FROM callcenter.callcenterdata WHERE date_ride = '" + fecha_titulo.Format("2006-01-02") + "'")
-						if err != nil {
+						fmt.Print(date_ride + " | " + driver + " | " + origin + " | " + destination + " | " + rider + " | " + tp_solicitud + " | " + tp_servicio + " | " + nro_transaccion + " | " + mto_tiempo_espera + " | " + cant_tks + " | " + mto_pago_conductor + " | " + de_estatus + " | " + mto_pasajero)
+						sql := "SELECT * FROM rider_control.migration('" + date_ride + "','" + driver + "','" + origin + "','" + destination + "','" + rider + "','" + tp_solicitud + "','" + tp_servicio + "','" + nro_transaccion + "','" + mto_tiempo_espera + "','" + cant_tks + "','" + mto_pago_conductor + "','" + de_estatus + "','" + mto_pasajero + "');"
+						fmt.Println("")
+						fmt.Println(sql)
+						_, err4 := db.Exec(sql)
+						if err4 != nil {
 							db.Close()
-							panic(err)
+							panic(err4)
 						}
-
-						for _, row := range sheet.Rows {
-							if strings.TrimSpace(row.Cells[1].String()) != "" && isDAte2(strings.TrimSpace(row.Cells[1].String())) {
-								if strings.ToUpper(strings.TrimSpace(row.Cells[6].String())) != "APP" && strings.TrimSpace(row.Cells[2].String()) != "" {
-									driver := strings.ToUpper(row.Cells[2].String())
-									driver = strings.Replace(driver, "Á", "A", -1)
-									driver = strings.Replace(driver, "É", "E", -1)
-									driver = strings.Replace(driver, "Í", "I", -1)
-									driver = strings.Replace(driver, "Ó", "O", -1)
-									driver = strings.Replace(driver, "Ú", "U", -1)
-									//println(row.Cells[1].String() + " " + row.Cells[2].String() + " " + row.Cells[3].String() + " " + row.Cells[4].String() + " " + row.Cells[5].String() + " " + row.Cells[5].String() + " " + row.Cells[9].String())
-									//println(row.Cells[6].String())
-									_, err4 := db.Exec("INSERT INTO callcenter.callcenterdata(date_ride, driver, origin, destination, rider, tks) VALUES (to_date('" + strings.TrimSpace(row.Cells[1].String()) + "','DD/MM/YYYY'), '" + strings.TrimSpace(driver) + "', '" + strings.TrimSpace(row.Cells[3].String()) + "', '" + strings.TrimSpace(row.Cells[4].String()) + "', 'a8a90dd8-02fd-4f86-815b-90cab0435d46', '" + strings.TrimSpace(row.Cells[9].String()) + "');")
-									if err4 != nil {
-										db.Close()
-										panic(err4)
-									}
-								}
-							}
+						/*texto := ""
+						for _, cell := range row.Cells {
+							text := cell.String()
+							fmt.Print(text + "|")
+							texto = texto + text + "|"
 						}
+						texto = texto + "\n"
+						f.WriteString(texto)*/
+						fmt.Println("")
 					}
 				}
 			}
 		}
 
 	}
-	_, err5 := db.Exec("UPDATE callcenter.callcenterdata A SET driver = B.uuid FROM callcenter.userdata B WHERE A.driver = B.driver")
-	if err5 != nil {
-		db.Close()
-		panic(err5)
-	}
-
-	rows, err10 := db.Query("SELECT driver from callcenter.callcenterdata WHERE LENGTH(driver) < 36 GROUP BY driver")
-	if err10 != nil {
-		panic(err10)
-	}
-
-	result := ""
-
-	for rows.Next() {
-		err11 := rows.Scan(&result)
-		if err11 != nil {
-			panic(err11)
+	/*	_, err5 := db.Exec("UPDATE callcenter.callcenterdata A SET driver = B.uuid FROM callcenter.userdata B WHERE A.driver = B.driver")
+		if err5 != nil {
+			db.Close()
+			panic(err5)
 		}
-		println(result)
-	}
 
-	rows.Close()
+		rows, err10 := db.Query("SELECT driver from callcenter.callcenterdata WHERE LENGTH(driver) < 36 GROUP BY driver")
+		if err10 != nil {
+			panic(err10)
+		}
+
+		result := ""
+
+		for rows.Next() {
+			err11 := rows.Scan(&result)
+			if err11 != nil {
+				panic(err11)
+			}
+			println(result)
+		}
+
+	rows.Close()*/
 
 	db.Close()
 }
