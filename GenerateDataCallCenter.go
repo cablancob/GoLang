@@ -12,22 +12,22 @@ import (
 )
 
 //DESARROLLO
-const (
+/*const (
 	host     = "192.168.1.140"
 	port     = 5432
 	user     = "postgres"
 	password = "postgres"
 	dbname   = "taskio"
-)
+)*/
 
 //PRODUCCION
-/*const (
+const (
 	host     = "experimental.taksio.net"
 	port     = 5432
 	user     = "postgres"
 	password = "3xp3r1m3nt4L-t4ks10-2018"
 	dbname   = "taksio"
-)*/
+)
 
 func isDAte(s string) bool {
 	bolean := true
@@ -61,7 +61,7 @@ func main() {
 
 	//fecha_actual := time.Now()
 
-	directory := "/home/desa/CallCenter/"
+	directory := "/home/taksioweb-01/CallCenter/"
 
 	dbinfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
@@ -72,7 +72,7 @@ func main() {
 	}
 	defer db.Close()
 
-	/*f, err10 := os.Create("/home/desa/archivos.txt")
+	/*f, err10 := os.Create("/home/taksioweb-01/archivos.txt")
 	if err10 != nil {
 		log.Fatal(err10)
 	}*/
@@ -93,8 +93,9 @@ func main() {
 		for _, sheet := range xlFile.Sheets {
 			if isDAte(strings.TrimSpace(sheet.Name)) {
 				s := strings.Split(sheet.Name, "-")
-				date_ride := strings.TrimSpace(s[2] + "-" + s[1] + "-" + s[0])
+				date_ride := strings.TrimSpace(strings.TrimSpace(s[2]) + "-" + strings.TrimSpace(s[1]) + "-" + strings.TrimSpace(s[0]))
 				fmt.Println(date_ride)
+				fmt.Println("")
 				//f.WriteString(date_ride + "\n")
 				for _, row := range sheet.Rows {
 					//if strings.TrimSpace(row.Cells[1].String()) == "Fecha" {
