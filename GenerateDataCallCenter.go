@@ -112,6 +112,9 @@ func main() {
 							mto_tiempo_espera = "0"
 						}
 						cant_tks := strings.TrimSpace(row.Cells[10].String())
+						if cant_tks == "" {
+							cant_tks = "0"
+						}
 						mto_pago_conductor := strings.TrimSpace(strings.Replace(strings.TrimSpace(row.Cells[13].String()), "Bs.", "", -1))
 						if mto_pago_conductor == "" || mto_pago_conductor == "-" || mto_pago_conductor == "#REF!" {
 							mto_pago_conductor = "0"
